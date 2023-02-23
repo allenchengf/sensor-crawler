@@ -1,7 +1,5 @@
 import json
-import logging
 import time
-
 import pymysql
 import redis
 from scrapy.utils.project import get_project_settings

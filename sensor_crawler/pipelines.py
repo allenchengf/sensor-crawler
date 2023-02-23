@@ -1,8 +1,5 @@
-from .model import sensor
 import logging
 from twisted.enterprise import adbapi
-import pymysql
-from sensor_crawler.items import SensorItem
 
 
 class PrtgCrawlerPipeline(object):

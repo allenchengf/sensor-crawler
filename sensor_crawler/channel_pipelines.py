@@ -1,8 +1,6 @@
-from .model import Base, engine, loadSession
 from twisted.enterprise import adbapi
-from .model import channel
 import logging
-from sensor_crawler.items import ChannelItem
+
 
 class ChannelCrawlerPipeline(object):
     def __init__(self, dbpool):
