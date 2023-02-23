@@ -1,11 +1,10 @@
-from .model import sensor
-import logging
+from .model import Base, engine, loadSession
 from twisted.enterprise import adbapi
-import pymysql
-from sensor_crawler.items import SensorItem
+from .model import channel
+import logging
+from sensor_crawler.items import ChannelItem
 
-
-class PrtgCrawlerPipeline(object):
+class ChannelCrawlerPipeline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
 
@@ -23,7 +22,7 @@ class PrtgCrawlerPipeline(object):
         return cls(dbpool)
 
     def process_item(self, item, spider):
-        if "url" in item:
+        if "lastvalue" in item:
             # 入庫
             query = self.dbpool.runInteraction(
                 self.insert_db,
@@ -38,30 +37,24 @@ class PrtgCrawlerPipeline(object):
     def insert_err(self, failure, item):
         print(failure, 'fail')  # , item)
 
+    def open_spider(self, spider):
+        logging.info('start channels crawler.')
+        truncate_sql = 'truncate table channels'
+        self.dbpool.runOperation(truncate_sql)
+        print('truncate channels table.')
+
     def insert_db(self, cursor, item):
         insert_sql = """
-                        insert into sensors( 
-                        name, 
+                        insert into channels( 
                         sensor_id, 
-                        url, 
-                        tags, 
-                        status,
-                        active)
-                        values (%s, %s, %s, %s, %s, %s)
+                        name, 
+                        lastvalue)
+                        values (%s, %s, %s)
                         """
-        params = (item['name'],
-                  item['sensor_id'],
-                  item['url'],
-                  item['tags'],
-                  item['status'],
-                  item['active'])
+        params = (item['sensor_id'],
+                  item['name'],
+                  item['lastvalue'])
         cursor.execute(insert_sql, params)
-
-    def open_spider(self, spider):
-        logging.info('start crawler.')
-        truncate_sql = 'truncate table sensors'
-        self.dbpool.runOperation(truncate_sql)
-        print('truncate sensors table.')
 
     def close_spider(self, spider):
         self.dbpool.close()
