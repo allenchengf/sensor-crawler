@@ -31,7 +31,7 @@ class MenuPipeline(object):
 
     def close_spider(self, spider):
         print('start generate menu')
-        time.sleep(10)
+        time.sleep(30)
         self.generate_sensors_menu()
         self.generate_channels_menu()
         self.cursor.close()
